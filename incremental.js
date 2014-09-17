@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 	'use strict';
 
-	var gameState, lastTick;
+	var gameState;
 
 	initialize(localStorage['incremental.save'] ? JSON.parse(localStorage['incremental.save']) : null);
 
@@ -31,10 +31,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		updateAutoclickValueDisplay();
 	});
 
-	lastTick = Date.now();
 	setInterval(function () {
-		var currentTime = Date.now(), timeElapsed = currentTime - lastTick;
-		lastTick = currentTime;
+		var currentTime = Date.now(), timeElapsed = currentTime - gameState.lastTick;
+		gameState.lastTick = currentTime;
 
 		incrementScore(gameState.autoclickValue * (timeElapsed / 1000));
 	}, 1000);
@@ -72,12 +71,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	function reset() {
 		initialize();
 		save();
-		lastTick = Date.now();
 	}
 
 	function initialize(state) {
 		gameState = state || {
 			score: 0,
+			lastTick: Date.now(),
 			clickValue: 1,
 			autoclickValue: 0,
 			clickValueUpgradePrice: 1,
