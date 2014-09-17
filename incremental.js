@@ -1,92 +1,72 @@
-document.addEventListener('DOMContentLoaded', function () {
+var incrementalApp = angular.module('incrementalApp', []);
+incrementalApp.controller('incrementalController', ['$scope', '$interval', function ($scope, $interval) {
 	'use strict';
-
-	var gameState;
 
 	initialize(localStorage['incremental.save'] ? JSON.parse(localStorage['incremental.save']) : null);
 
-	document.getElementById('button').addEventListener('click', function () {
-		incrementScore(gameState.clickValue);
-	});
-	document.getElementById('saveButton').addEventListener('click', save);
-	document.getElementById('resetButton').addEventListener('click', function () {
-		confirm('Are you sure you want to reset?') && reset();
-	});
-	document.getElementById('upgradeClickValueButton').addEventListener('click', function () {
-		if (gameState.score < gameState.clickValueUpgradePrice)
-			return;
-		incrementScore(- gameState.clickValueUpgradePrice);
-		gameState.clickValueUpgradePrice *= 2;
-		updateClickValueUpgradePriceDisplay();
-		gameState.clickValue ++;
-		updateClickValueDisplay();
-	});
-	document.getElementById('upgradeAutoclickValueButton').addEventListener('click', function () {
-		if (gameState.score < gameState.autoclickValueUpgradePrice)
-			return;
-		incrementScore(- gameState.autoclickValueUpgradePrice);
-		gameState.autoclickValueUpgradePrice *= 2;
-		updateAutoclickValueUpgradePriceDisplay();
-		gameState.autoclickValue ++;
-		updateAutoclickValueDisplay();
+	Object.defineProperty($scope, 'displayedScore', {
+		get: function () {
+			return Math.round($scope.score);
+		}
 	});
 
-	setInterval(function () {
-		var currentTime = Date.now(), timeElapsed = currentTime - gameState.lastTick;
-		gameState.lastTick = currentTime;
+	$scope.click = function () {
+		incrementScore($scope.clickValue);
+	};
+	$scope.save = save;
+	$scope.reset = function () {
+		if (!confirm('Are you sure you want to reset?'))
+			return;
+		initialize();
+		save();
+	};
+	$scope.upgradeClickValue = function () {
+		if ($scope.score < $scope.clickValueUpgradePrice)
+			return;
+		incrementScore(- $scope.clickValueUpgradePrice);
+		$scope.clickValueUpgradePrice *= 2;
+		$scope.clickValue ++;
+	};
+	$scope.upgradeAutoclickValue = function () {
+		if ($scope.score < $scope.autoclickValueUpgradePrice)
+			return;
+		incrementScore(- $scope.autoclickValueUpgradePrice);
+		$scope.autoclickValueUpgradePrice *= 2;
+		$scope.autoclickValue ++;
+	};
 
-		incrementScore(gameState.autoclickValue * (timeElapsed / 1000));
+	$interval(function () {
+		var currentTime = Date.now(), timeElapsed = currentTime - $scope.lastTick;
+		$scope.lastTick = currentTime;
+
+		incrementScore($scope.autoclickValue * (timeElapsed / 1000));
 	}, 1000);
 
-	setInterval(save, 30000);
+	$interval(save, 30000);
 	window.addEventListener('beforeunload', save);
 
 	function incrementScore(delta) {
-		gameState.score += delta;
-		updateScoreDisplay();
-	}
-
-	function updateScoreDisplay() {
-		var displayedScore = Math.round(gameState.score);
-		document.getElementById('score').textContent = displayedScore;
-		document.title = displayedScore;
-	}
-	function updateClickValueDisplay() {
-		document.getElementById('clickValue').textContent = gameState.clickValue;
-	}
-	function updateAutoclickValueDisplay() {
-		document.getElementById('autoclickValue').textContent = gameState.autoclickValue;
-	}
-	function updateClickValueUpgradePriceDisplay() {
-		document.getElementById('clickValueUpgradePrice').textContent = gameState.clickValueUpgradePrice;
-	}
-	function updateAutoclickValueUpgradePriceDisplay() {
-		document.getElementById('autoclickValueUpgradePrice').textContent = gameState.autoclickValueUpgradePrice;
+		$scope.score += delta;
 	}
 
 	function save() {
-		localStorage['incremental.save'] = JSON.stringify(gameState);
-	}
-
-	function reset() {
-		initialize();
-		save();
+		var state = {};
+		['score', 'lastTick', 'clickValue', 'autoclickValue', 'clickValueUpgradePrice', 'autoclickValueUpgradePrice'].forEach(function (key) {
+			state[key] = $scope[key];
+		});
+		localStorage['incremental.save'] = JSON.stringify(state);
 	}
 
 	function initialize(state) {
-		gameState = state || {
+		angular.extend($scope, state || {
 			score: 0,
 			lastTick: Date.now(),
 			clickValue: 1,
 			autoclickValue: 0,
 			clickValueUpgradePrice: 1,
 			autoclickValueUpgradePrice: 1
-		};
-		updateScoreDisplay();
-		updateClickValueDisplay();
-		updateAutoclickValueDisplay();
-		updateClickValueUpgradePriceDisplay();
-		updateAutoclickValueUpgradePriceDisplay();
+		});
+
 	}
 
-});
+}]);

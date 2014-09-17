@@ -1,22 +1,26 @@
 <!doctype html>
-<head>
-	<script src="incremental.js"></script>
-</head>
-<body>
-	<p>Score: <span id="score"></span></p>
-	<p>Click value: <span id="clickValue"></span></p>
-	<p>Autoclick value: <span id="autoclickValue"></span>/s</p>
-	<p><button id="button">Click</button></p>
-	<p>
-		<button id="upgradeClickValueButton">Upgrade click value</button>
-		Price: <span id="clickValueUpgradePrice"></span>
-	</p>
-	<p>
-		<button id="upgradeAutoclickValueButton">Upgrade autoclick value</button>
-		Price: <span id="autoclickValueUpgradePrice"></span>
-	</p>
-	<p>
-		<button id="saveButton" title="Autosaves every 30 seconds and onbeforeunload">Save</button>
-		<button id="resetButton">Reset</button>
-	</p>
-</body>
+<html ng-app="incrementalApp" ng-controller="incrementalController">
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+		<script src="incremental.js"></script>
+		<title>{{displayedScore}}</title>
+	</head>
+	<body>
+		<p>Score: {{displayedScore}}</p>
+		<p>Click value: {{clickValue}}</p>
+		<p>Autoclick value: {{autoclickValue}}/s</p>
+		<p><button ng-click="click()">Click</button></p>
+		<p>
+			<button ng-click="upgradeClickValue()">Upgrade click value</button>
+			Price: {{clickValueUpgradePrice}}
+		</p>
+		<p>
+			<button ng-click="upgradeAutoclickValue()">Upgrade autoclick value</button>
+			Price: {{autoclickValueUpgradePrice}}
+		</p>
+		<p>
+			<button ng-click="save()" title="Autosaves every 30 seconds and onbeforeunload">Save</button>
+			<button ng-click="reset()">Reset</button>
+		</p>
+	</body>
+</html>
