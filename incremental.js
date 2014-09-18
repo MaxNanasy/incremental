@@ -25,14 +25,16 @@ incrementalApp.controller('incrementalController', ['$scope', '$interval', funct
 			return;
 		incrementScore(- $scope.clickValueUpgradePrice);
 		$scope.clickValueUpgradePrice *= 2;
-		$scope.clickValue ++;
+		$scope.clickValue += $scope.clickValueUpgradeIncrement;
+		$scope.clickValueUpgradeIncrement += 2;
 	};
 	$scope.upgradeAutoclickValue = function () {
 		if ($scope.score < $scope.autoclickValueUpgradePrice)
 			return;
 		incrementScore(- $scope.autoclickValueUpgradePrice);
 		$scope.autoclickValueUpgradePrice *= 2;
-		$scope.autoclickValue ++;
+		$scope.autoclickValue += $scope.autoclickValueUpgradeIncrement;
+		$scope.autoclickValueUpgradeIncrement += 2;
 	};
 
 	$interval(function () {
@@ -51,7 +53,7 @@ incrementalApp.controller('incrementalController', ['$scope', '$interval', funct
 
 	function save() {
 		var state = {};
-		['score', 'lastTick', 'clickValue', 'autoclickValue', 'clickValueUpgradePrice', 'autoclickValueUpgradePrice'].forEach(function (key) {
+		['score', 'lastTick', 'clickValue', 'clickValueUpgradeIncrement', 'autoclickValue', 'autoclickValueUpgradeIncrement', 'clickValueUpgradePrice', 'autoclickValueUpgradePrice'].forEach(function (key) {
 			state[key] = $scope[key];
 		});
 		localStorage['incremental.save'] = JSON.stringify(state);
@@ -62,7 +64,9 @@ incrementalApp.controller('incrementalController', ['$scope', '$interval', funct
 			score: 0,
 			lastTick: Date.now(),
 			clickValue: 1,
+			clickValueUpgradeIncrement: 1,
 			autoclickValue: 0,
+			autoclickValueUpgradeIncrement: 1,
 			clickValueUpgradePrice: 1,
 			autoclickValueUpgradePrice: 1
 		});
